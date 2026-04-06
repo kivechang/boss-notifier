@@ -185,3 +185,60 @@
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
+                    <td><button onclick="deleteBoss(${boss.id})" class="text-red-600 hover:text-red-800 text-xs px-3 py-1 border rounded">刪除</button></td>
+                    <td class="font-mono">${boss.killStr}</td>
+                    <td class="font-mono text-blue-600">${respawn.getHours().toString().padStart(2,'0')}:${respawn.getMinutes().toString().padStart(2,'0')}</td>
+                    <td class="font-medium">${boss.name}</td>
+                    <td class="text-center text-emerald-600">${remain}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        window.deleteBoss = function(id) {
+            if (confirm('確定刪除這筆提醒？')) {
+                bosses = bosses.filter(b => b.id !== id);
+                localStorage.setItem('heavenMBossesNotify', JSON.stringify(bosses));
+                renderTable();
+            }
+        };
+
+        window.clearAll = function() {
+            if (confirm('確定清除全部提醒？')) {
+                bosses = [];
+                localStorage.setItem('heavenMBossesNotify', JSON.stringify(bosses));
+                renderTable();
+            }
+        };
+
+        window.exportJSON = function() {
+            const data = JSON.stringify(bosses, null, 2);
+            const blob = new Blob([data], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '天堂M王提醒.json';
+            a.click();
+        };
+
+        // 每10秒檢查是否該提醒 + 更新表格
+        setInterval(() => {
+            renderTable();
+            const now = new Date();
+            bosses.forEach(boss => {
+                if (!boss.notified && new Date(boss.respawnTimeISO) <= now) {
+                    sendNotification(boss.name);
+                    boss.notified = true;
+                    localStorage.setItem('heavenMBossesNotify', JSON.stringify(bosses));
+                }
+            });
+        }, 10000);
+
+        // 初始化
+        window.onload = function() {
+            renderTable();
+            console.log("網頁載入完成，通知權限：", Notification.permission);
+        };
+    </script>
+</body>
+</html>
