@@ -3,241 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>天堂M 王提醒管理器（含通知）</title>
+    <title>天堂M 王提醒管理器 - 除錯版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; }
-        th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: left; }
+        th, td { border: 1px solid #e5e7eb; padding: 12px; }
         th { background-color: #f8fafc; }
-        .time-link { color: #3b82f6; text-decoration: underline; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen py-8">
-    <div class="max-w-5xl mx-auto px-4">
-        <div class="flex items-center gap-3 mb-8">
-            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white text-2xl">👑</div>
-            <h1 class="text-3xl font-bold text-gray-800">天堂M 王提醒管理器（含通知）</h1>
+    <div class="max-w-4xl mx-auto px-4">
+        <h1 class="text-3xl font-bold text-center mb-8">🌟 天堂M 王提醒管理器（除錯版）</h1>
+
+        <!-- 除錯資訊區 -->
+        <div class="bg-gray-900 text-green-400 p-4 rounded-xl mb-6 font-mono text-sm" id="debugInfo">
+            通知權限狀態：載入中...
         </div>
 
-        <!-- 測試通知按鈕 -->
-        <div class="bg-yellow-100 border border-yellow-300 rounded-2xl p-4 mb-6">
-            <button onclick="testNotificationPermission()" 
-                    class="bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-6 py-3 rounded-2xl">
-                🔧 測試通知權限
+        <!-- 測試按鈕 -->
+        <div class="bg-white rounded-2xl shadow p-6 mb-8">
+            <button onclick="testNotification()" 
+                    class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-2xl text-lg">
+                🔧 強制測試通知（點這個看有沒有跳）
             </button>
-            <p class="text-xs text-yellow-700 mt-2">點此確認通知是否正常</p>
         </div>
 
-        <!-- 輸入表單 -->
+        <!-- 新增王表單 -->
         <div class="bg-white rounded-2xl shadow p-6 mb-8">
             <h2 class="text-xl font-semibold mb-4">新增王提醒</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">王的名字</label>
-                    <input id="bossName" type="text" placeholder="胖 / 紅王 / 卡爾迪修" 
-                           class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                    <label class="block text-sm mb-1">王的名字</label>
+                    <input id="bossName" type="text" placeholder="胖" class="w-full border rounded-xl px-4 py-3">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">擊殺時間</label>
-                    <input id="killTime" type="text" placeholder="1500 或 15:00" 
-                           class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                    <label class="block text-sm mb-1">擊殺時間</label>
+                    <input id="killTime" type="text" placeholder="1500" class="w-full border rounded-xl px-4 py-3">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">重生間隔（小時）</label>
-                    <div class="flex items-center gap-2">
-                        <input id="interval" type="number" value="4" min="1" 
-                               class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500">
-                        <span class="text-gray-500 font-medium">小時</span>
-                    </div>
+                    <label class="block text-sm mb-1">重生間隔</label>
+                    <input id="interval" type="number" value="4" min="1" class="w-full border rounded-xl px-4 py-3">
                 </div>
                 <div class="flex items-end">
                     <button onclick="addBoss()" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3.5 rounded-2xl transition-all">
+                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-2xl">
                         ✅ 設定提醒
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- 表格 -->
-        <div class="bg-white rounded-2xl shadow overflow-hidden">
-            <div class="px-6 py-4 border-b flex justify-between bg-slate-50">
-                <h2 class="text-xl font-semibold">目前所有王提醒</h2>
-                <div class="flex gap-3">
-                    <button onclick="exportJSON()" class="text-sm px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl">📤 匯出 JSON</button>
-                    <button onclick="clearAll()" class="text-sm px-4 py-2 bg-red-100 hover:bg-red-200 text-red-700 rounded-xl">🗑️ 清空全部</button>
-                </div>
-            </div>
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="bg-slate-50">
-                        <th class="w-12">功能</th>
-                        <th class="w-32">擊殺時間</th>
-                        <th class="w-40">重生時間</th>
-                        <th>王名</th>
-                        <th class="w-28 text-center">剩餘時間</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody" class="divide-y"></tbody>
-            </table>
-            <div id="emptyState" class="hidden px-6 py-12 text-center text-gray-400">
-                目前沒有王提醒<br>請在上方新增
-            </div>
+        <div class="text-center text-sm text-gray-500">
+            目前通知權限：<span id="permissionStatus" class="font-mono font-bold"></span>
         </div>
     </div>
 
     <script>
         let bosses = JSON.parse(localStorage.getItem('heavenMBossesNotify')) || [];
 
-        function parseKillTime(timeStr) {
-            const now = new Date();
-            let hour, minute;
-            if (timeStr.includes(':')) {
-                [hour, minute] = timeStr.split(':').map(Number);
-            } else {
-                const num = parseInt(timeStr);
-                hour = Math.floor(num / 100);
-                minute = num % 100;
-            }
-            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, minute);
+        // 更新除錯資訊
+        function updateDebug() {
+            const status = document.getElementById('permissionStatus');
+            const debug = document.getElementById('debugInfo');
+            status.textContent = Notification.permission;
+            debug.innerHTML = `
+                通知權限：${Notification.permission}<br>
+                支援通知：${"Notification" in window ? "是" : "否"}<br>
+                目前時間：${new Date().toLocaleTimeString('zh-TW')}
+            `;
         }
 
-        window.testNotificationPermission = async function() {
-            if (!("Notification" in window)) return alert("瀏覽器不支援通知");
-            const perm = await Notification.requestPermission();
-            console.log("通知權限狀態:", perm);
-            if (perm === "granted") {
-                new Notification("✅ 測試成功", { body: "天堂M 王提醒通知已開啟！" });
-            } else {
-                alert("通知權限為：" + perm);
+        // 強制測試通知
+        window.testNotification = async function() {
+            console.log("=== 測試通知開始 ===");
+            updateDebug();
+
+            if (!("Notification" in window)) {
+                alert("瀏覽器不支援 Notification API");
+                return;
+            }
+
+            if (Notification.permission !== "granted") {
+                const perm = await Notification.requestPermission();
+                console.log("請求權限結果：", perm);
+                updateDebug();
+            }
+
+            // 直接發送通知
+            try {
+                const notification = new Notification("🧪 測試通知", {
+                    body: "如果看到這則通知，表示通知功能正常！\n點擊我可以回到網頁",
+                    icon: "https://cdn-icons-png.flaticon.com/512/3063/3063176.png",
+                    tag: "test-" + Date.now()
+                });
+
+                console.log("通知物件已建立", notification);
+
+                notification.onclick = () => {
+                    window.focus();
+                    console.log("通知被點擊");
+                };
+
+                alert("✅ 已嘗試發送測試通知！\n請檢查桌面右下角是否有跳出通知");
+            } catch (err) {
+                console.error("發送通知失敗：", err);
+                alert("發送通知時發生錯誤：" + err.message);
             }
         };
 
-        function sendNotification(bossName) {
-            if (Notification.permission === "granted") {
-                new Notification(`⏰ 天堂M 王提醒`, {
-                    body: `${bossName} 的時間到了！快去刷王～`,
-                    icon: "https://cdn-icons-png.flaticon.com/512/3063/3063176.png"
-                });
-            }
-        }
-
+        // 新增王
         window.addBoss = function() {
             const name = document.getElementById('bossName').value.trim();
             const killStr = document.getElementById('killTime').value.trim();
             const interval = parseInt(document.getElementById('interval').value);
 
             if (!name || !killStr || isNaN(interval)) {
-                alert('請填寫王的名字、擊殺時間和重生間隔！');
+                alert("請填寫完整資料！");
                 return;
             }
 
-            // 強制請求通知權限
-            if (Notification.permission === "default") {
-                testNotificationPermission();
+            console.log("新增王：", name, killStr, interval);
+
+            const now = new Date();
+            let hour = parseInt(killStr.slice(0, -2));
+            let min = parseInt(killStr.slice(-2));
+            if (killStr.includes(':')) {
+                [hour, min] = killStr.split(':').map(Number);
             }
 
-            const killTime = parseKillTime(killStr);
+            const killTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hour, min);
             const respawnTime = new Date(killTime.getTime() + interval * 60 * 60 * 1000);
 
             bosses.unshift({
                 id: Date.now(),
                 name: name,
-                killStr: killStr,
-                interval: interval,
                 respawnTimeISO: respawnTime.toISOString(),
                 notified: false
             });
 
             localStorage.setItem('heavenMBossesNotify', JSON.stringify(bosses));
             
-            // 清空輸入框
             document.getElementById('bossName').value = '';
             document.getElementById('killTime').value = '';
-            
-            renderTable();
-            alert(`✅ 已新增「${name}」提醒，將於 ${respawnTime.getHours().toString().padStart(2,'0')}:${respawnTime.getMinutes().toString().padStart(2,'0')} 通知`);
+
+            alert(`✅ 已新增「${name}」，重生時間 ${respawnTime.getHours().toString().padStart(2, '0')}:${respawnTime.getMinutes().toString().padStart(2, '0')}`);
+            console.log("新增成功，目前有", bosses.length, "筆資料");
         };
-
-        function renderTable() {
-            const tbody = document.getElementById('tableBody');
-            tbody.innerHTML = '';
-            const empty = document.getElementById('emptyState');
-
-            if (bosses.length === 0) {
-                empty.classList.remove('hidden');
-                return;
-            }
-            empty.classList.add('hidden');
-
-            const now = new Date();
-
-            bosses.forEach((boss, index) => {
-                const respawn = new Date(boss.respawnTimeISO);
-                const diffMs = respawn - now;
-                let remain = '已到期';
-
-                if (diffMs > 0) {
-                    const h = Math.floor(diffMs / 3600000);
-                    const m = Math.floor((diffMs % 3600000) / 60000);
-                    remain = `${h}h ${m}m`;
-                }
-
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><button onclick="deleteBoss(${boss.id})" class="text-red-600 hover:text-red-800 text-xs px-3 py-1 border rounded">刪除</button></td>
-                    <td class="font-mono">${boss.killStr}</td>
-                    <td class="font-mono text-blue-600">${respawn.getHours().toString().padStart(2,'0')}:${respawn.getMinutes().toString().padStart(2,'0')}</td>
-                    <td class="font-medium">${boss.name}</td>
-                    <td class="text-center text-emerald-600">${remain}</td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        window.deleteBoss = function(id) {
-            if (confirm('確定刪除這筆提醒？')) {
-                bosses = bosses.filter(b => b.id !== id);
-                localStorage.setItem('heavenMBossesNotify', JSON.stringify(bosses));
-                renderTable();
-            }
-        };
-
-        window.clearAll = function() {
-            if (confirm('確定清除全部提醒？')) {
-                bosses = [];
-                localStorage.setItem('heavenMBossesNotify', JSON.stringify(bosses));
-                renderTable();
-            }
-        };
-
-        window.exportJSON = function() {
-            const data = JSON.stringify(bosses, null, 2);
-            const blob = new Blob([data], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = '天堂M王提醒.json';
-            a.click();
-        };
-
-        // 每10秒檢查是否該提醒 + 更新表格
-        setInterval(() => {
-            renderTable();
-            const now = new Date();
-            bosses.forEach(boss => {
-                if (!boss.notified && new Date(boss.respawnTimeISO) <= now) {
-                    sendNotification(boss.name);
-                    boss.notified = true;
-                    localStorage.setItem('heavenMBossesNotify', JSON.stringify(bosses));
-                }
-            });
-        }, 10000);
 
         // 初始化
         window.onload = function() {
-            renderTable();
-            console.log("網頁載入完成，通知權限：", Notification.permission);
+            updateDebug();
+            console.log("網頁已載入，當前權限：", Notification.permission);
+            
+            // 每 5 秒更新除錯資訊
+            setInterval(updateDebug, 5000);
         };
     </script>
 </body>
