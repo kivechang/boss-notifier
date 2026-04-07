@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>天堂M 王提醒管理器</title>
+    <title>天堂M 王提醒管理器 - 自動延續版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: system-ui, -apple-system, sans-serif; }
@@ -12,72 +12,62 @@
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen py-8">
-    <div class="max-w-5xl mx-auto px-4">
+    <div class="max-w-6xl mx-auto px-4">
         <div class="flex items-center gap-3 mb-8">
             <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white text-3xl">👑</div>
-            <h1 class="text-3xl font-bold text-gray-800">天堂M 王提醒管理器</h1>
+            <h1 class="text-3xl font-bold text-gray-800">天堂M 王提醒管理器（自動延續版）</h1>
         </div>
 
+        <!-- 新增表單 -->
         <div class="bg-white rounded-3xl shadow-lg p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-4">新增王提醒</h2>
+            <h2 class="text-xl font-semibold mb-4">新增 / 設定王</h2>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">王的名字</label>
-                    <input id="bossName" type="text" placeholder="胖 / 紅王" 
-                           class="w-full border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                    <input id="bossName" type="text" placeholder="胖 / 紅王" class="w-full border border-gray-300 rounded-2xl px-4 py-3">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">擊殺時間</label>
-                    <input id="killTime" type="text" placeholder="1500 或 15:00" 
-                           class="w-full border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-blue-500">
+                    <input id="killTime" type="text" placeholder="1500 或 15:00" class="w-full border border-gray-300 rounded-2xl px-4 py-3">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">重生間隔（小時）</label>
-                    <div class="flex gap-2 items-center">
-                        <input id="interval" type="number" value="4" min="1" 
-                               class="w-full border border-gray-300 rounded-2xl px-4 py-3 focus:outline-none focus:border-blue-500">
-                        <span class="text-gray-500">小時</span>
-                    </div>
+                    <input id="interval" type="number" value="4" min="1" class="w-full border border-gray-300 rounded-2xl px-4 py-3">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="addBoss()" 
-                            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-2xl">
+                    <button onclick="addBoss()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-2xl">
                         ✅ 設定提醒
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- 表格 -->
+        <!-- 王列表表格 -->
         <div class="bg-white rounded-3xl shadow-lg overflow-hidden">
-            <div class="px-6 py-5 border-b bg-slate-50 flex justify-between items-center">
-                <h2 class="text-xl font-semibold">目前王提醒列表</h2>
+            <div class="px-6 py-5 border-b bg-slate-50 flex justify-between">
+                <h2 class="text-xl font-semibold">王提醒列表（自動延續）</h2>
                 <button onclick="exportJSON()" class="text-sm px-5 py-2 bg-gray-100 hover:bg-gray-200 rounded-xl">📤 匯出 JSON</button>
             </div>
             <table class="w-full text-sm">
                 <thead>
                     <tr class="bg-slate-50">
-                        <th class="w-16">功能</th>
-                        <th class="w-28">擊殺時間</th>
-                        <th class="w-36">重生時間</th>
+                        <th class="w-20">功能</th>
+                        <th class="w-32">上次擊殺</th>
+                        <th class="w-40">下次重生</th>
                         <th>王名</th>
-                        <th class="w-32 text-center">剩餘時間</th>
+                        <th class="w-28 text-center">剩餘時間</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y"></tbody>
             </table>
             <div id="emptyState" class="hidden py-16 text-center text-gray-400">
-                尚未新增任何王提醒
+                尚未新增任何王
             </div>
         </div>
-
-        <p class="text-center text-xs text-gray-400 mt-10">
-            網頁需保持開啟才能收到通知 • 資料儲存在瀏覽器
-        </p>
     </div>
 
     <script>
-        let bosses = JSON.parse(localStorage.getItem('heavenMBossesFinal')) || [];
+        let bosses = JSON.parse(localStorage.getItem('heavenMBossesAuto')) || [];
 
         function parseKillTime(timeStr) {
             const now = new Date();
@@ -95,17 +85,17 @@
         function sendNotification(bossName) {
             if (Notification.permission === "granted") {
                 new Notification(`⏰ 天堂M 王提醒`, {
-                    body: `${bossName} 的時間到了！\n快去刷王～`,
-                    icon: "https://cdn-icons-png.flaticon.com/512/3063/3063176.png",
-                    requireInteraction: false
+                    body: `${bossName} 的時間到了！\n已自動延續下一次提醒`,
+                    icon: "https://cdn-icons-png.flaticon.com/512/3063/3063176.png"
                 });
             }
         }
 
+        // 新增或更新王
         window.addBoss = function() {
             const name = document.getElementById('bossName').value.trim();
             const killStr = document.getElementById('killTime').value.trim();
-            const interval = parseInt(document.getElementById('interval').value);
+            let interval = parseInt(document.getElementById('interval').value);
 
             if (!name || !killStr || isNaN(interval)) {
                 alert('請填寫完整資料！');
@@ -115,22 +105,47 @@
             const killTime = parseKillTime(killStr);
             const respawnTime = new Date(killTime.getTime() + interval * 60 * 60 * 1000);
 
-            bosses.unshift({
-                id: Date.now(),
-                name: name,
-                killStr: killStr,
-                interval: interval,
-                respawnTimeISO: respawnTime.toISOString(),
-                notified: false
-            });
+            // 如果已經有相同王，則更新
+            const existingIndex = bosses.findIndex(b => b.name === name);
+            if (existingIndex !== -1) {
+                bosses[existingIndex].killTimeISO = killTime.toISOString();
+                bosses[existingIndex].respawnTimeISO = respawnTime.toISOString();
+                bosses[existingIndex].interval = interval;
+            } else {
+                bosses.unshift({
+                    id: Date.now(),
+                    name: name,
+                    killTimeISO: killTime.toISOString(),
+                    respawnTimeISO: respawnTime.toISOString(),
+                    interval: interval,
+                    notified: false
+                });
+            }
 
-            localStorage.setItem('heavenMBossesFinal', JSON.stringify(bosses));
-            
+            localStorage.setItem('heavenMBossesAuto', JSON.stringify(bosses));
             document.getElementById('bossName').value = '';
             document.getElementById('killTime').value = '';
 
             renderTable();
-            alert(`✅ 已設定「${name}」\n將於 ${respawnTime.getHours().toString().padStart(2,'0')}:${respawnTime.getMinutes().toString().padStart(2,'0')} 提醒`);
+            alert(`✅ 已設定「${name}」\n下次重生：${respawnTime.getHours().toString().padStart(2,'0')}:${respawnTime.getMinutes().toString().padStart(2,'0')}`);
+        };
+
+        // 已擊殺按鈕（自動延續）
+        window.markAsKilled = function(id) {
+            const boss = bosses.find(b => b.id === id);
+            if (!boss) return;
+
+            const now = new Date();
+            const nextRespawn = new Date(now.getTime() + boss.interval * 60 * 60 * 1000);
+
+            boss.killTimeISO = now.toISOString();
+            boss.respawnTimeISO = nextRespawn.toISOString();
+            boss.notified = false;
+
+            localStorage.setItem('heavenMBossesAuto', JSON.stringify(bosses));
+            renderTable();
+
+            alert(`✅ 「${boss.name}」已標記擊殺\n下次重生時間已自動更新為 ${nextRespawn.getHours().toString().padStart(2,'0')}:${nextRespawn.getMinutes().toString().padStart(2,'0')}`);
         };
 
         function renderTable() {
@@ -153,15 +168,20 @@
                 if (diffMs > 0) {
                     const h = Math.floor(diffMs / 3600000);
                     const m = Math.floor((diffMs % 3600000) / 60000);
-                    remainHTML = `<span class="text-emerald-600">${h}h ${m}m</span>`;
+                    remainHTML = `<span class="text-emerald-600 font-medium">${h}h ${m}m</span>`;
+                } else {
+                    remainHTML = `<span class="text-red-500">已到期</span>`;
                 }
 
                 const row = document.createElement('tr');
                 row.innerHTML = `
-                    <td><button onclick="deleteBoss(${boss.id})" class="text-red-500 hover:text-red-700 text-xs px-3 py-1 border rounded">刪除</button></td>
-                    <td class="font-mono">${boss.killStr}</td>
-                    <td class="font-mono text-blue-600">${respawn.getHours().toString().padStart(2,'0')}:${respawn.getMinutes().toString().padStart(2,'0')}</td>
-                    <td>${boss.name}</td>
+                    <td>
+                        <button onclick="markAsKilled(${boss.id})" class="bg-green-600 hover:bg-green-700 text-white text-xs px-4 py-1 rounded-xl">已擊殺</button>
+                        <button onclick="deleteBoss(${boss.id})" class="ml-2 text-red-500 hover:text-red-700 text-xs px-3 py-1 border rounded">刪除</button>
+                    </td>
+                    <td class="font-mono">${new Date(boss.killTimeISO).toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'})}</td>
+                    <td class="font-mono text-blue-600">${respawn.toLocaleTimeString('zh-TW', {hour:'2-digit', minute:'2-digit'})}</td>
+                    <td class="font-medium">${boss.name}</td>
                     <td class="text-center">${remainHTML}</td>
                 `;
                 tbody.appendChild(row);
@@ -169,9 +189,9 @@
         }
 
         window.deleteBoss = function(id) {
-            if (confirm('確定刪除這筆？')) {
+            if (confirm('確定刪除這筆王嗎？')) {
                 bosses = bosses.filter(b => b.id !== id);
-                localStorage.setItem('heavenMBossesFinal', JSON.stringify(bosses));
+                localStorage.setItem('heavenMBossesAuto', JSON.stringify(bosses));
                 renderTable();
             }
         };
@@ -185,7 +205,7 @@
             a.click();
         };
 
-        // 每10秒檢查提醒 + 更新剩餘時間
+        // 每10秒檢查是否到期 + 自動更新表格
         setInterval(() => {
             renderTable();
             const now = new Date();
@@ -193,7 +213,7 @@
                 if (!boss.notified && new Date(boss.respawnTimeISO) <= now) {
                     sendNotification(boss.name);
                     boss.notified = true;
-                    localStorage.setItem('heavenMBossesFinal', JSON.stringify(bosses));
+                    localStorage.setItem('heavenMBossesAuto', JSON.stringify(bosses));
                 }
             });
         }, 10000);
@@ -201,7 +221,6 @@
         // 初始化
         window.onload = function() {
             renderTable();
-            console.log("✅ 天堂M 王提醒管理器已啟動 | 通知權限:", Notification.permission);
         };
     </script>
 </body>
